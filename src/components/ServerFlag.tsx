@@ -5,9 +5,7 @@ import { useEffect, useState } from "react"
 export default function ServerFlag({ country_code, className }: { country_code: string; className?: string }) {
   const [supportsEmojiFlags, setSupportsEmojiFlags] = useState(false)
 
-  // @ts-expect-error ForceUseSvgFlag is a global variable
-  const forceUseSvgFlag = (window.ForceUseSvgFlag as boolean) || 
-    (import.meta.env.VITE_FORCE_USE_SVG_FLAG === "true")
+  const forceUseSvgFlag = window.ForceUseSvgFlag as boolean
 
   useEffect(() => {
     if (forceUseSvgFlag) {

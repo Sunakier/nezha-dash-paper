@@ -38,7 +38,6 @@ const App: React.FC = () => {
 
   // 检测是否强制指定了主题颜色
   const forceTheme =
-    // @ts-expect-error ForceTheme is a global variable
     (window.ForceTheme as string) !== "" ? window.ForceTheme : 
     (import.meta.env.VITE_FORCE_THEME as string) !== "" ? import.meta.env.VITE_FORCE_THEME : 
     undefined

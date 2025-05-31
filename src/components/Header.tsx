@@ -36,10 +36,8 @@ function Header() {
 
   const siteName = settingData?.data?.config?.site_name
 
-  // @ts-expect-error CustomLogo is a global variable
   const customLogo = window.CustomLogo || import.meta.env.VITE_CUSTOM_LOGO || "/apple-touch-icon.png"
 
-  // @ts-expect-error CustomDesc is a global variable
   const customDesc = window.CustomDesc || import.meta.env.VITE_CUSTOM_DESC || t("nezha")
 
   const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : 
@@ -154,7 +152,6 @@ type links = {
 }
 
 function Links() {
-  // @ts-expect-error CustomLinks is a global variable
   const customLinks = window.CustomLinks || import.meta.env.VITE_CUSTOM_LINKS as string
 
   const links: links[] | null = customLinks ? JSON.parse(customLinks as string) : null

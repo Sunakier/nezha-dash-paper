@@ -69,6 +69,8 @@ VITE_CUSTOM_ILLUSTRATION="/custom-illustration.png"
 | VITE_CUSTOM_BACKGROUND_IMAGE | 自定义背景图片 | 无 |
 | VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE | 自定义移动端背景图片 | 无 |
 | VITE_CUSTOM_ILLUSTRATION | 自定义插图 | "/animated-man.webp" |
+| VITE_PROXY_WS_TARGET | WebSocket 代理目标地址 | "ws://127.0.0.1:8008" |
+| VITE_PROXY_HTTP_TARGET | HTTP 代理目标地址 | "http://127.0.0.1:8008" |
 
 请参考项目根目录下的 `.env.example` 文件获取更多信息和示例。
 

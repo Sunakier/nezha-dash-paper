@@ -33,12 +33,12 @@ export default defineConfig({
     },
     proxy: {
       "/api/v1/ws/server": {
-        target: "ws://127.0.0.1:8008",
+        target: process.env.VITE_PROXY_WS_TARGET || "ws://127.0.0.1:8008",
         changeOrigin: true,
         ws: true,
       },
       "/api/v1/": {
-        target: "http://127.0.0.1:8008",
+        target: process.env.VITE_PROXY_HTTP_TARGET || "http://127.0.0.1:8008",
         changeOrigin: true,
       },
     },

@@ -268,7 +268,11 @@ export const NetworkChartClient = React.memo(function NetworkChart({
             </Label>
           </div>
         </div>
-        <div className="flex flex-wrap w-full">{chartButtons}</div>
+        <div className="flex flex-wrap w-full">{chartButtons.map(() => (
+          <div>
+
+          </div>
+        ))}</div>
       </CardHeader>
       <CardContent className="pr-2 pl-0 py-4 sm:pt-6 sm:pb-6 sm:pr-6 sm:pl-2">
         <div className="relative">
@@ -330,7 +334,11 @@ export const NetworkChartClient = React.memo(function NetworkChart({
                 }
               />
               <ChartLegend content={<ChartLegendContent />} />
-              {chartLines}
+              {chartLines.map(() => (
+                <div>
+
+                </div>
+              ))}
             </LineChart>
           </ChartContainer>
         </div>

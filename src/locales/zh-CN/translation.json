@@ -132,5 +132,12 @@
   "ToggleLightMode": "切换亮色模式",
   "ToggleDarkMode": "切换暗色模式",
   "ToggleSystemMode": "切换系统模式",
-  "Home": "首页"
+  "Home": "首页",
+  "sort": {
+    "sortBy": "排序方式",
+    "sortOrder": "排序顺序",
+    "chooseType": "选择类型",
+    "chooseOrder": "选择顺序",
+    "sort": "排序"
+  }
 }

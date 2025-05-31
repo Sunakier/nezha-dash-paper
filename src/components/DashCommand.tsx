@@ -6,9 +6,11 @@ import { useWebSocketContext } from "@/hooks/use-websocket-context"
 import { formatNezhaInfo } from "@/lib/utils"
 import { NezhaWebsocketResponse } from "@/types/nezha-api"
 import { Home, Moon, Sun, SunMoon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { createContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
+
+export const DashCommandContext = createContext<{ open: boolean; setOpen: (open: boolean) => void } | undefined>(undefined)
 
 export function DashCommand() {
   const [open, setOpen] = useState(false)
@@ -66,7 +68,7 @@ export function DashCommand() {
   }))
 
   return (
-    <>
+    <DashCommandContext.Provider value={{ open, setOpen }}>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={t("TypeCommand")} value={search} onValueChange={setSearch} />
         <CommandList className="border-t">
@@ -113,6 +115,6 @@ export function DashCommand() {
           </CommandGroup>
         </CommandList>
       </CommandDialog>
-    </>
+    </DashCommandContext.Provider>
   )
 }

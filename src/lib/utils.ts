@@ -17,6 +17,7 @@ export function formatNezhaInfo(now: number, serverInfo: NezhaServer) {
     up: serverInfo.state.net_out_speed / 1024 / 1024 || 0,
     down: serverInfo.state.net_in_speed / 1024 / 1024 || 0,
     last_active_time_string: lastActiveTime ? dayjs(lastActiveTime).format("YYYY-MM-DD HH:mm:ss") : "",
+    last_active_time_ago: lastActiveTime ? formatTimeAgo(lastActiveTime, now) : "",
     online: now - lastActiveTime <= 30000,
     uptime: serverInfo.state.uptime || 0,
     version: serverInfo.host.version || null,
@@ -36,6 +37,7 @@ export function formatNezhaInfo(now: number, serverInfo: NezhaServer) {
     disk_total: serverInfo.host.disk_total || 0,
     boot_time: serverInfo.host.boot_time || 0,
     boot_time_string: serverInfo.host.boot_time ? dayjs(serverInfo.host.boot_time * 1000).format("YYYY-MM-DD HH:mm:ss") : "",
+    boot_time_duration: serverInfo.host.boot_time ? formatBootTimeDuration(serverInfo.host.boot_time, now) : "",
     platform_version: serverInfo.host.platform_version || "",
     cpu_info: serverInfo.host.cpu || [],
     gpu_info: serverInfo.host.gpu || [],
@@ -210,6 +212,42 @@ export function formatRelativeTime(timestamp: number): string {
     return `${seconds}s`
   }
   return "0s"
+}
+
+export function formatBootTimeDuration(bootTime: number, now: number): string {
+  if (!bootTime) return ""
+
+  const diff = Math.floor(now / 1000 - bootTime)
+  const days = Math.floor(diff / 86400)
+  const hours = Math.floor((diff % 86400) / 3600)
+  const minutes = Math.floor((diff % 3600) / 60)
+  const seconds = diff % 60
+
+  let result = ""
+  if (days > 0) result += `${days}d`
+  if (hours > 0) result += `${hours}h`
+  if (minutes > 0) result += `${minutes}min`
+  if (seconds > 0 || result === "") result += `${seconds}s`
+
+  return result
+}
+
+export function formatTimeAgo(timestamp: number, now: number): string {
+  if (!timestamp) return ""
+
+  const diff = Math.floor(now - timestamp)
+  const seconds = Math.floor(diff / 1000)
+
+  if (seconds < 60) return `${seconds}s ago`
+
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}min ago`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
 }
 
 export function formatTime(timestamp: number): string {

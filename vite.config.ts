@@ -33,12 +33,12 @@ export default defineConfig({
     },
     proxy: {
       "/api/v1/ws/server": {
-        target: "ws://localhost:8008",
+        target: "ws://127.0.0.1:8008",
         changeOrigin: true,
         ws: true,
       },
       "/api/v1/": {
-        target: "http://localhost:8008",
+        target: "http://127.0.0.1:8008",
         changeOrigin: true,
       },
     },

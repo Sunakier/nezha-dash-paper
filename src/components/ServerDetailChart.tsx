@@ -165,8 +165,45 @@ function GpuChart({
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, gpu: gpuStat }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedValue = olderPoint.gpu + ratio * (newerPoint.gpu - olderPoint.gpu)
+
+              // Replace all older points with just the 60s point
+              newData = [{ timeStamp: sixtySecondsAgo.toString(), gpu: interpolatedValue }, ...newData.slice(oldestIndex)]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
@@ -273,8 +310,45 @@ function CpuChart({ now, data, messageHistory }: { now: number; data: NezhaServe
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, cpu: cpu }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedValue = olderPoint.cpu + ratio * (newerPoint.cpu - olderPoint.cpu)
+
+              // Replace all older points with just the 60s point
+              newData = [{ timeStamp: sixtySecondsAgo.toString(), cpu: interpolatedValue }, ...newData.slice(oldestIndex)]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
@@ -379,14 +453,85 @@ function ProcessChart({ now, data, messageHistory }: { now: number; data: NezhaS
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, process }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedValue = olderPoint.process + ratio * (newerPoint.process - olderPoint.process)
+
+              // Replace all older points with just the 60s point
+              newData = [{ timeStamp: sixtySecondsAgo.toString(), process: Math.round(interpolatedValue) }, ...newData.slice(oldestIndex)]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
       })
     }
   }, [data, historyLoaded])
+
+  // Calculate the appropriate Y-axis domain based on process count values
+  const calculateYAxisDomain = () => {
+    if (processChartData.length === 0) {
+      return [0, 100] // Default domain if no data
+    }
+
+    // Get min and max process values
+    const processValues = processChartData.map((item) => item.process)
+    const maxProcess = Math.max(...processValues)
+    const minProcess = Math.min(...processValues)
+
+    // Calculate the upper bound to place the maximum value at 85% of the graph height
+    // Ensure it's an integer for process counts
+    const upperBound = Math.ceil(maxProcess / 0.85)
+
+    // Calculate the lower bound based on whether the minimum value is 0 or not
+    let lowerBound
+
+    if (minProcess === 0) {
+      // If minimum is 0, it should touch the bottom
+      lowerBound = 0
+    } else {
+      // If minimum is not 0, it should be at 15% of the graph height
+      // This formula calculates what value should be at the bottom of the graph
+      // so that minProcess appears at 15% of the graph height
+      // Ensure it's an integer for process counts
+      lowerBound = Math.floor(minProcess - (minProcess * 0.15) / 0.85)
+    }
+
+    return [lowerBound, upperBound]
+  }
+
+  const yAxisDomain = calculateYAxisDomain()
 
   const chartConfig = {
     process: {
@@ -428,7 +573,7 @@ function ProcessChart({ now, data, messageHistory }: { now: number; data: NezhaS
                 interval="preserveStartEnd"
                 tickFormatter={(value) => formatRelativeTime(value)}
               />
-              <YAxis tickLine={false} axisLine={false} mirror={true} tickMargin={-15} />
+              <YAxis tickLine={false} axisLine={false} mirror={true} tickMargin={-15} domain={yAxisDomain} />
               <Area
                 isAnimationActive={false}
                 dataKey="process"
@@ -492,8 +637,46 @@ function MemChart({ now, data, messageHistory }: { now: number; data: NezhaServe
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, mem, swap }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedMem = olderPoint.mem + ratio * (newerPoint.mem - olderPoint.mem)
+              const interpolatedSwap = olderPoint.swap + ratio * (newerPoint.swap - olderPoint.swap)
+
+              // Replace all older points with just the 60s point
+              newData = [{ timeStamp: sixtySecondsAgo.toString(), mem: interpolatedMem, swap: interpolatedSwap }, ...newData.slice(oldestIndex)]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
@@ -634,8 +817,45 @@ function DiskChart({ now, data, messageHistory }: { now: number; data: NezhaServ
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, disk }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedValue = olderPoint.disk + ratio * (newerPoint.disk - olderPoint.disk)
+
+              // Replace all older points with just the 60s point
+              newData = [{ timeStamp: sixtySecondsAgo.toString(), disk: interpolatedValue }, ...newData.slice(oldestIndex)]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
@@ -746,8 +966,49 @@ function NetworkChart({ now, data, messageHistory }: { now: number; data: NezhaS
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, upload: up, download: down }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedUpload = olderPoint.upload + ratio * (newerPoint.upload - olderPoint.upload)
+              const interpolatedDownload = olderPoint.download + ratio * (newerPoint.download - olderPoint.download)
+
+              // Replace all older points with just the 60s point
+              newData = [
+                { timeStamp: sixtySecondsAgo.toString(), upload: interpolatedUpload, download: interpolatedDownload },
+                ...newData.slice(oldestIndex),
+              ]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
@@ -755,11 +1016,45 @@ function NetworkChart({ now, data, messageHistory }: { now: number; data: NezhaS
     }
   }, [data, historyLoaded])
 
-  let maxDownload = Math.max(...networkChartData.map((item) => item.download))
-  maxDownload = Math.ceil(maxDownload)
-  if (maxDownload < 1) {
-    maxDownload = 1
+  // Calculate the appropriate Y-axis domain based on network traffic values
+  const calculateYAxisDomain = () => {
+    if (networkChartData.length === 0) {
+      return [0, 1] // Default domain if no data
+    }
+
+    // Get max values for both upload and download
+    const uploadValues = networkChartData.map((item) => item.upload)
+    const downloadValues = networkChartData.map((item) => item.download)
+
+    // Find the overall max and min values
+    const maxUpload = Math.max(...uploadValues)
+    const maxDownload = Math.max(...downloadValues)
+    const maxValue = Math.max(maxUpload, maxDownload)
+
+    const minUpload = Math.min(...uploadValues)
+    const minDownload = Math.min(...downloadValues)
+    const minValue = Math.min(minUpload, minDownload)
+
+    // Calculate the upper bound to place the maximum value at 85% of the graph height
+    const upperBound = Math.ceil(maxValue / 0.85)
+
+    // Calculate the lower bound based on whether the minimum value is 0 or not
+    let lowerBound
+
+    if (minValue === 0) {
+      // If minimum is 0, it should touch the bottom
+      lowerBound = 0
+    } else {
+      // If minimum is not 0, it should be at 15% of the graph height
+      lowerBound = Math.max(0.1, minValue - (minValue * 0.15) / 0.85)
+    }
+
+    // Ensure we have at least a minimum value of 0.1 for the lower bound if not zero
+    // This prevents issues with logarithmic scales or very small values
+    return [lowerBound, upperBound]
   }
+
+  const yAxisDomain = calculateYAxisDomain()
 
   const chartConfig = {
     upload: {
@@ -828,7 +1123,7 @@ function NetworkChart({ now, data, messageHistory }: { now: number; data: NezhaS
                 type="number"
                 minTickGap={50}
                 interval="preserveStartEnd"
-                domain={[1, maxDownload]}
+                domain={yAxisDomain}
                 tickFormatter={(value) => `${value.toFixed(0)}M/s`}
               />
               <Line isAnimationActive={false} dataKey="upload" type="linear" stroke="hsl(var(--chart-1))" strokeWidth={1} dot={false} />
@@ -887,14 +1182,92 @@ function ConnectChart({ now, data, messageHistory }: { now: number; data: NezhaS
           ]
         } else {
           newData = [...prevData, { timeStamp: timestamp, tcp, udp }]
-          if (newData.length > 30) {
-            newData.shift()
+
+          // Ensure we keep enough data points to cover 60 seconds
+          const currentTime = Date.now()
+          const sixtySecondsAgo = currentTime - 60000
+
+          // Find the oldest data point that's within the 60-second window
+          let oldestIndex = 0
+          for (let i = 0; i < newData.length; i++) {
+            if (parseInt(newData[i].timeStamp) >= sixtySecondsAgo) {
+              oldestIndex = i
+              break
+            }
+          }
+
+          // If we have data points older than 60 seconds, keep one data point at exactly 60s
+          if (oldestIndex > 0) {
+            // Calculate a value for the 60s mark by interpolating between the closest points
+            const olderPoint = newData[Math.max(0, oldestIndex - 1)]
+            const newerPoint = newData[oldestIndex]
+
+            const olderTime = parseInt(olderPoint.timeStamp)
+            const newerTime = parseInt(newerPoint.timeStamp)
+
+            // If we have points on both sides of the 60s mark, interpolate
+            if (olderTime < sixtySecondsAgo && newerTime > sixtySecondsAgo) {
+              const ratio = (sixtySecondsAgo - olderTime) / (newerTime - olderTime)
+              const interpolatedTcp = Math.round(olderPoint.tcp + ratio * (newerPoint.tcp - olderPoint.tcp))
+              const interpolatedUdp = Math.round(olderPoint.udp + ratio * (newerPoint.udp - olderPoint.udp))
+
+              // Replace all older points with just the 60s point
+              newData = [{ timeStamp: sixtySecondsAgo.toString(), tcp: interpolatedTcp, udp: interpolatedUdp }, ...newData.slice(oldestIndex)]
+            } else {
+              // Just keep points within the 60s window
+              newData = newData.slice(oldestIndex - 1)
+            }
+          }
+
+          // Limit the total number of points to prevent excessive memory usage
+          if (newData.length > 60) {
+            newData = newData.slice(newData.length - 60)
           }
         }
         return newData
       })
     }
   }, [data, historyLoaded])
+
+  // Calculate the appropriate Y-axis domain based on connection count values
+  const calculateYAxisDomain = () => {
+    if (connectChartData.length === 0) {
+      return [0, 100] // Default domain if no data
+    }
+
+    // Get max and min values for both TCP and UDP
+    const tcpValues = connectChartData.map((item) => item.tcp)
+    const udpValues = connectChartData.map((item) => item.udp)
+
+    // Find the overall max and min values
+    const maxTcp = Math.max(...tcpValues)
+    const maxUdp = Math.max(...udpValues)
+    const maxValue = Math.max(maxTcp, maxUdp)
+
+    const minTcp = Math.min(...tcpValues)
+    const minUdp = Math.min(...udpValues)
+    const minValue = Math.min(minTcp, minUdp)
+
+    // Calculate the upper bound to place the maximum value at 85% of the graph height
+    // Ensure it's an integer for connection counts
+    const upperBound = Math.ceil(maxValue / 0.85)
+
+    // Calculate the lower bound based on whether the minimum value is 0 or not
+    let lowerBound
+
+    if (minValue === 0) {
+      // If minimum is 0, it should touch the bottom
+      lowerBound = 0
+    } else {
+      // If minimum is not 0, it should be at 15% of the graph height
+      // Ensure it's an integer for connection counts
+      lowerBound = Math.floor(minValue - (minValue * 0.15) / 0.85)
+    }
+
+    return [lowerBound, upperBound]
+  }
+
+  const yAxisDomain = calculateYAxisDomain()
 
   const chartConfig = {
     tcp: {
@@ -951,7 +1324,15 @@ function ConnectChart({ now, data, messageHistory }: { now: number; data: NezhaS
                 interval="preserveStartEnd"
                 tickFormatter={(value) => formatRelativeTime(value)}
               />
-              <YAxis tickLine={false} axisLine={false} mirror={true} tickMargin={-15} type="number" interval="preserveStartEnd" />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                mirror={true}
+                tickMargin={-15}
+                type="number"
+                interval="preserveStartEnd"
+                domain={yAxisDomain}
+              />
               <Line isAnimationActive={false} dataKey="tcp" type="linear" stroke="hsl(var(--chart-1))" strokeWidth={1} dot={false} />
               <Line isAnimationActive={false} dataKey="udp" type="linear" stroke="hsl(var(--chart-4))" strokeWidth={1} dot={false} />
             </LineChart>

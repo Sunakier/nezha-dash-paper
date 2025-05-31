@@ -8,11 +8,12 @@ import { Loader } from "@/components/loading/Loader"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { SORT_ORDERS, SORT_TYPES } from "@/context/sort-context"
 import { useSort } from "@/hooks/use-sort"
 import { useStatus } from "@/hooks/use-status"
 import { useWebSocketContext } from "@/hooks/use-websocket-context"
-import { fetchServerGroup } from "@/lib/nezha-api"
+import { fetchServerGroup, fetchService } from "@/lib/nezha-api"
 import { cn, formatNezhaInfo } from "@/lib/utils"
 import { NezhaWebsocketResponse } from "@/types/nezha-api"
 import { ServerGroup } from "@/types/nezha-api"
@@ -27,6 +28,14 @@ export default function Servers() {
   const { data: groupData } = useQuery({
     queryKey: ["server-group"],
     queryFn: () => fetchServerGroup(),
+  })
+
+  const { data: serviceData } = useQuery({
+    queryKey: ["service"],
+    queryFn: () => fetchService(),
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10000,
   })
   const { lastMessage, connected } = useWebSocketContext()
   const { status } = useStatus()
@@ -259,28 +268,52 @@ export default function Servers() {
               })}
             />
           </button>
-          <button
-            onClick={() => {
-              setShowServices(showServices === "0" ? "1" : "0")
-              localStorage.setItem("showServices", showServices === "0" ? "1" : "0")
-            }}
-            className={cn(
-              "rounded-[50px] bg-white dark:bg-stone-800 cursor-pointer p-[10px] transition-all border dark:border-none border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]",
-              {
-                "shadow-[inset_0_1px_0_rgba(0,0,0,0.2)] !bg-blue-600 hover:!bg-blue-600 border-blue-600 dark:border-blue-600": showServices === "1",
-                "text-white": showServices === "1",
-              },
-              {
-                "bg-opacity-70 dark:bg-opacity-70": customBackgroundImage,
-              },
-            )}
-          >
-            <ChartBarSquareIcon
-              className={cn("size-[13px]", {
-                "text-white": showServices === "1",
-              })}
-            />
-          </button>
+          {/* Check if there's no service data */}
+          {!serviceData?.data?.services && !serviceData?.data?.cycle_transfer_stats ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    disabled
+                    className={cn(
+                      "rounded-[50px] bg-white dark:bg-stone-800 p-[10px] transition-all border dark:border-none border-stone-200 dark:border-stone-700 opacity-50 cursor-not-allowed shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]",
+                      {
+                        "bg-opacity-70 dark:bg-opacity-70": customBackgroundImage,
+                      },
+                    )}
+                  >
+                    <ChartBarSquareIcon className="size-[13px]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t("serviceTracker.noService")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <button
+              onClick={() => {
+                setShowServices(showServices === "0" ? "1" : "0")
+                localStorage.setItem("showServices", showServices === "0" ? "1" : "0")
+              }}
+              className={cn(
+                "rounded-[50px] bg-white dark:bg-stone-800 cursor-pointer p-[10px] transition-all border dark:border-none border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]",
+                {
+                  "shadow-[inset_0_1px_0_rgba(0,0,0,0.2)] !bg-blue-600 hover:!bg-blue-600 border-blue-600 dark:border-blue-600": showServices === "1",
+                  "text-white": showServices === "1",
+                },
+                {
+                  "bg-opacity-70 dark:bg-opacity-70": customBackgroundImage,
+                },
+              )}
+            >
+              <ChartBarSquareIcon
+                className={cn("size-[13px]", {
+                  "text-white": showServices === "1",
+                })}
+              />
+            </button>
+          )}
           <button
             onClick={() => {
               setInline(inline === "0" ? "1" : "0")
@@ -318,7 +351,7 @@ export default function Servers() {
                 },
               )}
             >
-              <p className="text-[10px] font-bold whitespace-nowrap">{sortType === "default" ? "Sort" : sortType.toUpperCase()}</p>
+              <p className="text-[10px] font-bold whitespace-nowrap">{sortType === "default" ? t("sort.sort") : sortType.toUpperCase()}</p>
               {sortOrder === "asc" && sortType !== "default" ? (
                 <ArrowUpIcon className="size-[13px]" />
               ) : sortOrder === "desc" && sortType !== "default" ? (
@@ -331,10 +364,10 @@ export default function Servers() {
           <PopoverContent className="p-4 w-[240px] rounded-lg">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Sort by</Label>
+                <Label className="text-xs font-medium text-muted-foreground">{t("sort.sortBy")}</Label>
                 <Select value={sortType} onValueChange={setSortType}>
                   <SelectTrigger className="w-full text-xs h-8">
-                    <SelectValue placeholder="Choose type" />
+                    <SelectValue placeholder={t("sort.chooseType")} />
                   </SelectTrigger>
                   <SelectContent>
                     {SORT_TYPES.map((type) => (
@@ -346,10 +379,10 @@ export default function Servers() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs font-medium text-muted-foreground">Sort order</Label>
+                <Label className="text-xs font-medium text-muted-foreground">{t("sort.sortOrder")}</Label>
                 <Select value={sortOrder} onValueChange={setSortOrder} disabled={sortType === "default"}>
                   <SelectTrigger className="w-full text-xs h-8">
-                    <SelectValue placeholder="Choose order" />
+                    <SelectValue placeholder={t("sort.chooseOrder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {SORT_ORDERS.map((order) => (
@@ -365,7 +398,7 @@ export default function Servers() {
         </Popover>
       </div>
       {showMap === "1" && <GlobalMap now={nezhaWsData.now} serverList={nezhaWsData?.servers || []} />}
-      {showServices === "1" && <ServiceTracker serverList={filteredServers} />}
+      {showServices === "1" && serviceData?.data?.services && <ServiceTracker serverList={filteredServers} />}
       {inline === "1" && (
         <section ref={containerRef} className="flex flex-col gap-2 overflow-x-scroll scrollbar-hidden mt-6 server-inline-list">
           {filteredServers.map((serverInfo) => (

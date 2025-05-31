@@ -9,7 +9,7 @@ import { cn, formatNezhaInfo } from "@/lib/utils"
 import { NezhaWebsocketResponse } from "@/types/nezha-api"
 import countries from "i18n-iso-countries"
 import enLocale from "i18n-iso-countries/langs/en.json"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
@@ -21,6 +21,12 @@ export default function ServerDetailOverview({ server_id }: { server_id: string 
   const navigate = useNavigate()
 
   const [hasHistory, setHasHistory] = useState(false)
+  const [timeDiff, setTimeDiff] = useState(0) // Time difference between server and browser
+  const [currentTime, setCurrentTime] = useState(Date.now()) // Current browser time
+  const serverTimeRef = useRef(0) // Server time reference
+  const lastActiveTimeRef = useRef(0) // Last active time reference
+  const bootTimeRef = useRef(0) // Boot time reference
+  const intervalRef = useRef<NodeJS.Timeout | null>(null) // Interval reference
 
   useEffect(() => {
     const previousPath = sessionStorage.getItem("fromMainPage")
@@ -30,6 +36,33 @@ export default function ServerDetailOverview({ server_id }: { server_id: string 
   }, [])
 
   const { lastMessage, connected } = useWebSocketContext()
+
+  // Calculate time difference when WebSocket data is received
+  useEffect(() => {
+    if (lastMessage) {
+      const nezhaWsData = JSON.parse(lastMessage.data) as NezhaWebsocketResponse
+      const serverTime = nezhaWsData.now
+      const browserTime = Date.now()
+      const diff = browserTime - serverTime
+      setTimeDiff(diff)
+      serverTimeRef.current = serverTime
+
+      // Start the interval to update times if not already started
+      if (!intervalRef.current) {
+        intervalRef.current = setInterval(() => {
+          setCurrentTime(Date.now())
+        }, 1000)
+      }
+    }
+
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [lastMessage])
 
   if (!connected && !lastMessage) {
     return <ServerDetailLoading />
@@ -76,6 +109,61 @@ export default function ServerDetailOverview({ server_id }: { server_id: string 
     last_active_time_string,
     boot_time_string,
   } = formatNezhaInfo(nezhaWsData.now, server)
+
+  // Store last active time and boot time in refs
+  const lastActiveTime = server.last_active.startsWith("000") ? 0 : new Date(server.last_active).getTime()
+  lastActiveTimeRef.current = lastActiveTime
+  bootTimeRef.current = server.host.boot_time ? server.host.boot_time * 1000 : 0
+
+  // Calculate dynamic last active time ago
+  const calculateLastActiveTimeAgo = () => {
+    if (!lastActiveTimeRef.current) return ""
+
+    // Calculate the adjusted server time (browser time - time difference)
+    const adjustedServerTime = currentTime - timeDiff
+
+    // Calculate seconds since last active
+    const secondsSinceLastActive = Math.floor((adjustedServerTime - lastActiveTimeRef.current) / 1000)
+
+    if (secondsSinceLastActive < 60) return `${secondsSinceLastActive}s ago`
+
+    const minutesSinceLastActive = Math.floor(secondsSinceLastActive / 60)
+    if (minutesSinceLastActive < 60) return `${minutesSinceLastActive}min ago`
+
+    const hoursSinceLastActive = Math.floor(minutesSinceLastActive / 60)
+    if (hoursSinceLastActive < 24) return `${hoursSinceLastActive}h ago`
+
+    const daysSinceLastActive = Math.floor(hoursSinceLastActive / 24)
+    return `${daysSinceLastActive}d ago`
+  }
+
+  // Calculate dynamic boot time duration
+  const calculateBootTimeDuration = () => {
+    if (!bootTimeRef.current) return ""
+
+    // Calculate the adjusted server time (browser time - time difference)
+    const adjustedServerTime = currentTime - timeDiff
+
+    // Calculate seconds since boot
+    const secondsSinceBoot = Math.floor((adjustedServerTime - bootTimeRef.current) / 1000)
+
+    const days = Math.floor(secondsSinceBoot / 86400)
+    const hours = Math.floor((secondsSinceBoot % 86400) / 3600)
+    const minutes = Math.floor((secondsSinceBoot % 3600) / 60)
+    const seconds = secondsSinceBoot % 60
+
+    let result = ""
+    if (days > 0) result += `${days}d`
+    if (hours > 0) result += `${hours}h`
+    if (minutes > 0) result += `${minutes}min`
+    if (seconds > 0 || result === "") result += `${seconds}s`
+
+    return result
+  }
+
+  // Get the dynamic values
+  const last_active_time_ago = calculateLastActiveTimeAgo()
+  const boot_time_duration = calculateBootTimeDuration()
 
   const customBackgroundImage = (window.CustomBackgroundImage as string) !== "" ? window.CustomBackgroundImage : undefined
 
@@ -292,7 +380,16 @@ export default function ServerDetailOverview({ server_id }: { server_id: string 
           <CardContent className="px-1.5 py-1">
             <section className="flex flex-col items-start gap-0.5">
               <p className="text-xs text-muted-foreground">{t("serverDetail.bootTime")}</p>
-              <div className="text-xs">{boot_time_string ? boot_time_string : "N/A"}</div>
+              <div className="text-xs">
+                {boot_time_string ? (
+                  <>
+                    {boot_time_string}
+                    {boot_time_duration && <span className="ml-1 text-muted-foreground">({boot_time_duration})</span>}
+                  </>
+                ) : (
+                  "N/A"
+                )}
+              </div>
             </section>
           </CardContent>
         </Card>
@@ -300,7 +397,16 @@ export default function ServerDetailOverview({ server_id }: { server_id: string 
           <CardContent className="px-1.5 py-1">
             <section className="flex flex-col items-start gap-0.5">
               <p className="text-xs text-muted-foreground">{t("serverDetail.lastActive")}</p>
-              <div className="text-xs">{last_active_time_string ? last_active_time_string : "N/A"}</div>
+              <div className="text-xs">
+                {last_active_time_string ? (
+                  <>
+                    {last_active_time_string}
+                    {last_active_time_ago && <span className="ml-1 text-muted-foreground">({last_active_time_ago})</span>}
+                  </>
+                ) : (
+                  "N/A"
+                )}
+              </div>
             </section>
           </CardContent>
         </Card>

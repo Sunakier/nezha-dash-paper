@@ -33,14 +33,14 @@ const Footer: React.FC = () => {
             </p>
             <section>
               {t("footer.themeBy")}
-              <a href={"https://github.com/hamster1963/nezha-dash"} target="_blank">
-                nezha-dash
+              <a href={"https://github.com/Sunakier/nezha-dash-paper"} target="_blank">
+                nezha-dash-paper
               </a>
-              {import.meta.env.VITE_GIT_HASH && (
+              {/**import.meta.env.VITE_GIT_HASH && (
                 <a href={"https://github.com/hamster1963/nezha-dash-v1/commit/" + import.meta.env.VITE_GIT_HASH} className="ml-1">
                   ({import.meta.env.VITE_GIT_HASH})
                 </a>
-              )}
+              )**/}
             </section>
           </div>
         </section>

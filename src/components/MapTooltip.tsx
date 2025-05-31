@@ -1,6 +1,6 @@
 import useTooltip from "@/hooks/use-tooltip"
 import { AnimatePresence, m } from "framer-motion"
-import { memo } from "react"
+import React, { memo } from "react"
 import { useTranslation } from "react-i18next"
 
 const MapTooltip = memo(function MapTooltip() {
@@ -22,7 +22,7 @@ const MapTooltip = memo(function MapTooltip() {
           top: tooltipData.centroid[1],
           transform: "translate(20%, -50%)",
         }}
-        onMouseEnter={(e) => {
+        onMouseEnter={(e: React.MouseEvent) => {
           e.stopPropagation()
         }}
       >

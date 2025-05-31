@@ -1,7 +1,3 @@
-> [!CAUTION]
-> 有关项目问题与意见请移步https://github.com/hamster1963/nezha-dash
-> 交流
-
 > [!NOTE]
-> 此项目为 nezha-dash 的官方实现，作为哪吒监控 V1 版本的默认前端，功能上可能与 nezha-dash 有所不同。
-> https://github.com/hamster1963/nezha-dash
+> 此项目 ( nezha-dash-paper ) 为 nezha-dash-v1 的 第三方实现，具体参见: nezha-dash-v1
+> https://github.com/hamster1963/nezha-dash-v1

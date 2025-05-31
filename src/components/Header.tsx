@@ -212,7 +212,6 @@ export function RefreshToast() {
 }
 
 function DashboardLink() {
-  const { t } = useTranslation()
   const { setNeedReconnect } = useWebSocketContext()
   const previousLoginState = useRef<boolean | null>(null)
   const {
@@ -251,18 +250,7 @@ function DashboardLink() {
     }
   }, [isLogin])
 
-  return (
-    <div className="flex items-center gap-2">
-      <a
-        href={"/dashboard"}
-        rel="noopener noreferrer"
-        className="flex items-center text-nowrap gap-1 text-sm font-medium opacity-50 transition-opacity hover:opacity-100"
-      >
-        {!isLogin && t("login")}
-        {isLogin && t("dashboard")}
-      </a>
-    </div>
-  )
+  return <div className="flex items-center gap-2"></div>
 }
 
 function Overview() {

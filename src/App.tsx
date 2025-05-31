@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom"
 
-import { DashCommand } from "./components/DashCommand"
+import { DashCommand, DashCommandProvider } from "./components/DashCommand"
 import ErrorBoundary from "./components/ErrorBoundary"
 import Footer from "./components/Footer"
 import Header, { RefreshToast } from "./components/Header"
@@ -88,18 +88,20 @@ const App: React.FC = () => {
             "bg-background": !customBackgroundImage,
           })}
         >
-          <main className="flex z-20 min-h-[calc(100vh-calc(var(--spacing)*16))] flex-1 flex-col gap-4 p-4 md:p-10 md:pt-8">
-            <RefreshToast />
-            <Header />
-            <DashCommand />
-            <Routes>
-              <Route path="/" element={<Server />} />
-              <Route path="/server/:id" element={<ServerDetail />} />
-              <Route path="/error" element={<ErrorPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Footer />
-          </main>
+          <DashCommandProvider>
+            <main className="flex z-20 min-h-[calc(100vh-calc(var(--spacing)*16))] flex-1 flex-col gap-4 p-4 md:p-10 md:pt-8">
+              <RefreshToast />
+              <Header />
+              <DashCommand />
+              <Routes>
+                <Route path="/" element={<Server />} />
+                <Route path="/server/:id" element={<ServerDetail />} />
+                <Route path="/error" element={<ErrorPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Footer />
+            </main>
+          </DashCommandProvider>
         </div>
       </ErrorBoundary>
     </Router>

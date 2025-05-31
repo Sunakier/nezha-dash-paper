@@ -6,22 +6,25 @@ import { useWebSocketContext } from "@/hooks/use-websocket-context"
 import { formatNezhaInfo } from "@/lib/utils"
 import { NezhaWebsocketResponse } from "@/types/nezha-api"
 import { Home, Moon, Sun, SunMoon } from "lucide-react"
-import { createContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+// Create a context for the command dialog
 export const DashCommandContext = createContext<{ open: boolean; setOpen: (open: boolean) => void } | undefined>(undefined)
 
-export function DashCommand() {
+// Custom hook to use the command context
+export function useDashCommand() {
+  const context = useContext(DashCommandContext)
+  if (context === undefined) {
+    throw new Error("useDashCommand must be used within a DashCommandProvider")
+  }
+  return context
+}
+
+// Provider component that will wrap the application
+export function DashCommandProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState("")
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-  const { setTheme } = useTheme()
-
-  const { lastMessage, connected } = useWebSocketContext()
-
-  const nezhaWsData = lastMessage ? (JSON.parse(lastMessage.data) as NezhaWebsocketResponse) : null
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -35,7 +38,34 @@ export function DashCommand() {
     return () => document.removeEventListener("keydown", down)
   }, [])
 
-  if (!connected || !nezhaWsData) return null
+  return (
+    <DashCommandContext.Provider 
+      value={{ 
+        open, 
+        setOpen: (newOpen) => setOpen(newOpen)
+      }}
+    >
+      {children}
+    </DashCommandContext.Provider>
+  )
+}
+
+// The actual command dialog component
+export function DashCommand() {
+  const [search, setSearch] = useState("")
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const { setTheme } = useTheme()
+  const { open, setOpen } = useDashCommand()
+
+  const { lastMessage, connected } = useWebSocketContext()
+
+  const nezhaWsData = lastMessage ? (JSON.parse(lastMessage.data) as NezhaWebsocketResponse) : null
+
+  // If not connected or no data, don't render the dialog content
+  if (!connected || !nezhaWsData) {
+    return null;
+  }
 
   const shortcuts = [
     {
@@ -68,53 +98,54 @@ export function DashCommand() {
   }))
 
   return (
-    <DashCommandContext.Provider value={{ open, setOpen }}>
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder={t("TypeCommand")} value={search} onValueChange={setSearch} />
-        <CommandList className="border-t">
-          <CommandEmpty>{t("NoResults")}</CommandEmpty>
-          {nezhaWsData.servers && nezhaWsData.servers.length > 0 && (
-            <>
-              <CommandGroup heading={t("Servers")}>
-                {nezhaWsData.servers.map((server) => (
-                  <CommandItem
-                    key={server.id}
-                    value={server.name}
-                    onSelect={() => {
-                      navigate(`/server/${server.id}`)
-                      setOpen(false)
-                    }}
-                  >
-                    {formatNezhaInfo(nezhaWsData.now, server).online ? (
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-green-500 self-center" />
-                    ) : (
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-red-500 self-center" />
-                    )}
-                    <span>{server.name}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </>
-          )}
-          <CommandSeparator />
+    <CommandDialog 
+      open={open} 
+      onOpenChange={setOpen}
+    >
+      <CommandInput placeholder={t("TypeCommand")} value={search} onValueChange={setSearch} />
+      <CommandList className="border-t">
+        <CommandEmpty>{t("NoResults")}</CommandEmpty>
+        {nezhaWsData.servers && nezhaWsData.servers.length > 0 && (
+          <>
+            <CommandGroup heading={t("Servers")}>
+              {nezhaWsData.servers.map((server) => (
+                <CommandItem
+                  key={server.id}
+                  value={server.name}
+                  onSelect={() => {
+                    navigate(`/server/${server.id}`)
+                    setOpen(false)
+                  }}
+                >
+                  {formatNezhaInfo(nezhaWsData.now, server).online ? (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-green-500 self-center" />
+                  ) : (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-red-500 self-center" />
+                  )}
+                  <span>{server.name}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
+        <CommandSeparator />
 
-          <CommandGroup heading={t("Shortcuts")}>
-            {shortcuts.map((item) => (
-              <CommandItem
-                key={item.label}
-                value={item.value}
-                onSelect={() => {
-                  item.action()
-                  setOpen(false)
-                }}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
-    </DashCommandContext.Provider>
+        <CommandGroup heading={t("Shortcuts")}>
+          {shortcuts.map((item) => (
+            <CommandItem
+              key={item.label}
+              value={item.value}
+              onSelect={() => {
+                item.action()
+                setOpen(false)
+              }}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>
   )
 }

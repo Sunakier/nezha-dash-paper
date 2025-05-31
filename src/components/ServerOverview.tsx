@@ -64,7 +64,7 @@ export default function ServerOverview({ online, offline, total, up, down, upSpe
             },
           )}
         >
-          <CardContent className="flex h-full items-center px-6 py-3">
+          <CardContent className="flex h-full items-center px-6 py-3 relative">
             <section className="flex flex-col gap-1">
               <p className="text-sm font-medium md:text-base">{t("serverOverview.onlineServers")}</p>
               <div className="flex items-center gap-2">
@@ -76,6 +76,14 @@ export default function ServerOverview({ online, offline, total, up, down, upSpe
                 <div className="text-lg font-semibold">{online}</div>
               </div>
             </section>
+            {!disableAnimatedMan && (
+              <img
+                className="absolute right-3 top-[-85px] z-50 w-20 scale-90 group-hover:opacity-50 md:scale-100 transition-all sm:hidden"
+                alt={"animated-man"}
+                src={customIllustration}
+                loading="eager"
+              />
+            )}
           </CardContent>
         </Card>
         <Card
@@ -132,7 +140,7 @@ export default function ServerOverview({ online, offline, total, up, down, upSpe
             </section>
             {!disableAnimatedMan && (
               <img
-                className="absolute right-3 top-[-85px] z-50 w-20 scale-90 group-hover:opacity-50 md:scale-100 transition-all"
+                className="absolute right-3 top-[-85px] z-50 w-20 scale-90 group-hover:opacity-50 md:scale-100 transition-all hidden sm:block"
                 alt={"animated-man"}
                 src={customIllustration}
                 loading="eager"

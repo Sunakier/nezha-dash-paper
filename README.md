@@ -29,18 +29,48 @@ nezha-dash-paper 支持多种自定义选项，包括自定义 Logo、描述、�
 
 #### 2. 环境变量（次优先级）
 
-可以通过在 `.env` 文件中添加环境变量来自定义：
+可以通过在 `.env` 文件中添加环境变量来自定义仪表盘的各种元素。这种方法不需要修改源代码，只需创建或编辑项目根目录下的 `.env` 文件即可。
+
+**如何使用环境变量：**
+
+1. 在项目根目录创建一个名为 `.env` 的文件（如果不存在）
+2. 添加所需的环境变量，每行一个
+3. 保存文件后重新构建项目（或重新启动开发服务器）
+
+**示例 `.env` 文件：**
 
 ```
-VITE_CUSTOM_LOGO="/path/to/your/logo.png"
-VITE_CUSTOM_DESC="Your Custom Description"
-VITE_CUSTOM_LINKS='[{"name":"GitHub","link":"https://github.com"},{"name":"Docs","link":"https://docs.example.com"}]'
+# 自定义描述文本
+VITE_CUSTOM_DESC="我的服务器监控"
+
+# 自定义 Logo 地址
+VITE_CUSTOM_LOGO="/custom-logo.png"
+
+# 自定义链接（JSON 格式）
+VITE_CUSTOM_LINKS='[{"name":"GitHub","link":"https://github.com"},{"name":"文档","link":"https://docs.example.com"}]'
+
+# 自定义背景图片
 VITE_CUSTOM_BACKGROUND_IMAGE="https://example.com/background.jpg"
+
+# 自定义移动端背景图片
 VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE="https://example.com/mobile-background.jpg"
-VITE_CUSTOM_ILLUSTRATION="/path/to/your/illustration.png"
+
+# 自定义插图
+VITE_CUSTOM_ILLUSTRATION="/custom-illustration.png"
 ```
 
-请参考 `.env.example` 文件获取更多信息。
+**可用的环境变量：**
+
+| 环境变量 | 说明 | 默认值 |
+|---------|------|-------|
+| VITE_CUSTOM_DESC | 自定义描述文本 | 翻译键 "nezha" |
+| VITE_CUSTOM_LOGO | 自定义 Logo 地址 | "/apple-touch-icon.png" |
+| VITE_CUSTOM_LINKS | 自定义链接（JSON 格式） | 无 |
+| VITE_CUSTOM_BACKGROUND_IMAGE | 自定义背景图片 | 无 |
+| VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE | 自定义移动端背景图片 | 无 |
+| VITE_CUSTOM_ILLUSTRATION | 自定义插图 | "/animated-man.webp" |
+
+请参考项目根目录下的 `.env.example` 文件获取更多信息和示例。
 
 #### 3. 预定义字符串（最低优先级）
 

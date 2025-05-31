@@ -6,7 +6,8 @@ export default function ServerFlag({ country_code, className }: { country_code: 
   const [supportsEmojiFlags, setSupportsEmojiFlags] = useState(false)
 
   // @ts-expect-error ForceUseSvgFlag is a global variable
-  const forceUseSvgFlag = window.ForceUseSvgFlag as boolean
+  const forceUseSvgFlag = (window.ForceUseSvgFlag as boolean) || 
+    (import.meta.env.VITE_FORCE_USE_SVG_FLAG === "true")
 
   useEffect(() => {
     if (forceUseSvgFlag) {

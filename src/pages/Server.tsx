@@ -63,7 +63,7 @@ export default function Servers() {
 
   useEffect(() => {
     const showServicesState = localStorage.getItem("showServices")
-    if (window.ForceShowServices) {
+    if (window.ForceShowServices || import.meta.env.VITE_FORCE_SHOW_SERVICES === "true") {
       setShowServices("1")
     } else if (showServicesState !== null) {
       setShowServices(showServicesState)
@@ -76,7 +76,7 @@ export default function Servers() {
 
       if (!isMobile) {
         const inlineState = localStorage.getItem("inline")
-        if (window.ForceCardInline) {
+        if (window.ForceCardInline || import.meta.env.VITE_FORCE_CARD_INLINE === "true") {
           setInline("1")
         } else if (inlineState !== null) {
           setInline(inlineState)
@@ -95,7 +95,7 @@ export default function Servers() {
 
   useEffect(() => {
     const showMapState = localStorage.getItem("showMap")
-    if (window.ForceShowMap) {
+    if (window.ForceShowMap || import.meta.env.VITE_FORCE_SHOW_MAP === "true") {
       setShowMap("1")
     } else if (showMapState !== null) {
       setShowMap(showMapState)

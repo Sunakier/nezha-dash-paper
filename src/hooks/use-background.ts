@@ -4,10 +4,17 @@ declare global {
   interface Window {
     CustomBackgroundImage: string
     CustomMobileBackgroundImage: string
+    CustomLogo: string
+    CustomDesc: string
+    CustomLinks: string
+    CustomIllustration: string
+    ForceTheme: string
     ForceShowServices: boolean
     ForceCardInline: boolean
     ForceShowMap: boolean
     ForcePeakCutEnabled: boolean
+    ForceUseSvgFlag: boolean
+    DisableAnimatedMan: boolean
   }
 }
 

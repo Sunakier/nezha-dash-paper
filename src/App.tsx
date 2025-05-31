@@ -38,9 +38,11 @@ const App: React.FC = () => {
 
   // 检测是否强制指定了主题颜色
   const forceTheme =
-    (window.ForceTheme as string) !== "" ? window.ForceTheme : 
-    (import.meta.env.VITE_FORCE_THEME as string) !== "" ? import.meta.env.VITE_FORCE_THEME : 
-    undefined
+    (window.ForceTheme as string) !== ""
+      ? window.ForceTheme
+      : (import.meta.env.VITE_FORCE_THEME as string) !== ""
+        ? import.meta.env.VITE_FORCE_THEME
+        : undefined
 
   useEffect(() => {
     if (forceTheme === "dark" || forceTheme === "light") {
@@ -64,8 +66,12 @@ const App: React.FC = () => {
     i18n.changeLanguage(settingData?.data?.config?.language)
   }
 
-  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : 
-    (import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE !== "" ? import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE : undefined)
+  const customMobileBackgroundImage =
+    window.CustomMobileBackgroundImage !== ""
+      ? window.CustomMobileBackgroundImage
+      : import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE !== ""
+        ? import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE
+        : undefined
 
   return (
     <Router basename={import.meta.env.BASE_URL}>

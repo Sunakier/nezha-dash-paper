@@ -39,10 +39,10 @@ export function DashCommandProvider({ children }: { children: React.ReactNode })
   }, [])
 
   return (
-    <DashCommandContext.Provider 
-      value={{ 
-        open, 
-        setOpen: (newOpen) => setOpen(newOpen)
+    <DashCommandContext.Provider
+      value={{
+        open,
+        setOpen: (newOpen) => setOpen(newOpen),
       }}
     >
       {children}
@@ -64,7 +64,7 @@ export function DashCommand() {
 
   // If not connected or no data, don't render the dialog content
   if (!connected || !nezhaWsData) {
-    return null;
+    return null
   }
 
   const shortcuts = [
@@ -98,10 +98,7 @@ export function DashCommand() {
   }))
 
   return (
-    <CommandDialog 
-      open={open} 
-      onOpenChange={setOpen}
-    >
+    <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput placeholder={t("TypeCommand")} value={search} onValueChange={setSearch} />
       <CommandList className="border-t">
         <CommandEmpty>{t("NoResults")}</CommandEmpty>

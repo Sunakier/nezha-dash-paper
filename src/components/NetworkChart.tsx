@@ -92,9 +92,7 @@ export const NetworkChartClient = React.memo(function NetworkChart({
 
   const customBackgroundImage = (window.CustomBackgroundImage as string) !== "" ? window.CustomBackgroundImage : undefined
 
-  const forcePeakCutEnabled = (window.ForcePeakCutEnabled as boolean) || 
-    (import.meta.env.VITE_FORCE_PEAK_CUT_ENABLED === "true") || 
-    false
+  const forcePeakCutEnabled = (window.ForcePeakCutEnabled as boolean) || import.meta.env.VITE_FORCE_PEAK_CUT_ENABLED === "true" || false
 
   // Change from string to string array for multi-selection
   const [activeCharts, setActiveCharts] = React.useState<string[]>([])

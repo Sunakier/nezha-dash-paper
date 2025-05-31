@@ -18,7 +18,7 @@ export default function ServerDetail() {
   // Fetch monitor data to check if it's available - only if server_id exists
   const { data: monitorData } = useQuery({
     queryKey: ["monitor", server_id ? Number(server_id) : null],
-    queryFn: () => server_id ? fetchMonitor(Number(server_id)) : Promise.reject("No server ID"),
+    queryFn: () => (server_id ? fetchMonitor(Number(server_id)) : Promise.reject("No server ID")),
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchInterval: 10000,

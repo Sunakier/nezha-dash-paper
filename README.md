@@ -18,12 +18,12 @@ nezha-dash-paper 支持多种自定义选项，包括自定义 Logo、描述、�
 
 ```html
 <script>
-  window.CustomLogo = "/path/to/your/logo.png";
-  window.CustomDesc = "Your Custom Description";
-  window.CustomLinks = '[{"name":"GitHub","link":"https://github.com"},{"name":"Docs","link":"https://docs.example.com"}]';
-  window.CustomBackgroundImage = "https://example.com/background.jpg";
-  window.CustomMobileBackgroundImage = "https://example.com/mobile-background.jpg";
-  window.CustomIllustration = "/path/to/your/illustration.png";
+  window.CustomLogo = "/path/to/your/logo.png"
+  window.CustomDesc = "Your Custom Description"
+  window.CustomLinks = '[{"name":"GitHub","link":"https://github.com"},{"name":"Docs","link":"https://docs.example.com"}]'
+  window.CustomBackgroundImage = "https://example.com/background.jpg"
+  window.CustomMobileBackgroundImage = "https://example.com/mobile-background.jpg"
+  window.CustomIllustration = "/path/to/your/illustration.png"
 </script>
 ```
 
@@ -61,16 +61,16 @@ VITE_CUSTOM_ILLUSTRATION="/custom-illustration.png"
 
 **可用的环境变量：**
 
-| 环境变量 | 说明 | 默认值 |
-|---------|------|-------|
-| VITE_CUSTOM_DESC | 自定义描述文本 | 翻译键 "nezha" |
-| VITE_CUSTOM_LOGO | 自定义 Logo 地址 | "/apple-touch-icon.png" |
-| VITE_CUSTOM_LINKS | 自定义链接（JSON 格式） | 无 |
-| VITE_CUSTOM_BACKGROUND_IMAGE | 自定义背景图片 | 无 |
-| VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE | 自定义移动端背景图片 | 无 |
-| VITE_CUSTOM_ILLUSTRATION | 自定义插图 | "/animated-man.webp" |
-| VITE_PROXY_WS_TARGET | WebSocket 代理目标地址 | "ws://127.0.0.1:8008" |
-| VITE_PROXY_HTTP_TARGET | HTTP 代理目标地址 | "http://127.0.0.1:8008" |
+| 环境变量                            | 说明                    | 默认值                  |
+| ----------------------------------- | ----------------------- | ----------------------- |
+| VITE_CUSTOM_DESC                    | 自定义描述文本          | 翻译键 "nezha"          |
+| VITE_CUSTOM_LOGO                    | 自定义 Logo 地址        | "/apple-touch-icon.png" |
+| VITE_CUSTOM_LINKS                   | 自定义链接（JSON 格式） | 无                      |
+| VITE_CUSTOM_BACKGROUND_IMAGE        | 自定义背景图片          | 无                      |
+| VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE | 自定义移动端背景图片    | 无                      |
+| VITE_CUSTOM_ILLUSTRATION            | 自定义插图              | "/animated-man.webp"    |
+| VITE_PROXY_WS_TARGET                | WebSocket 代理目标地址  | "ws://127.0.0.1:8008"   |
+| VITE_PROXY_HTTP_TARGET              | HTTP 代理目标地址       | "http://127.0.0.1:8008" |
 
 请参考项目根目录下的 `.env.example` 文件获取更多信息和示例。
 

@@ -19,8 +19,7 @@ export default function ServerOverview({ online, offline, total, up, down, upSpe
   const { t } = useTranslation()
   const { status, setStatus } = useStatus()
 
-  const disableAnimatedMan = (window.DisableAnimatedMan as boolean) || 
-    (import.meta.env.VITE_DISABLE_ANIMATED_MAN === "true")
+  const disableAnimatedMan = (window.DisableAnimatedMan as boolean) || import.meta.env.VITE_DISABLE_ANIMATED_MAN === "true"
 
   const customIllustration = window.CustomIllustration || import.meta.env.VITE_CUSTOM_ILLUSTRATION || "/animated-man.webp"
 

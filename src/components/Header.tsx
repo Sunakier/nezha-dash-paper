@@ -40,8 +40,12 @@ function Header() {
 
   const customDesc = window.CustomDesc || import.meta.env.VITE_CUSTOM_DESC || t("nezha")
 
-  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : 
-    (import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE !== "" ? import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE : undefined)
+  const customMobileBackgroundImage =
+    window.CustomMobileBackgroundImage !== ""
+      ? window.CustomMobileBackgroundImage
+      : import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE !== ""
+        ? import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE
+        : undefined
 
   useEffect(() => {
     const link = document.querySelector("link[rel*='icon']") || document.createElement("link")
@@ -152,7 +156,7 @@ type links = {
 }
 
 function Links() {
-  const customLinks = window.CustomLinks || import.meta.env.VITE_CUSTOM_LINKS as string
+  const customLinks = window.CustomLinks || (import.meta.env.VITE_CUSTOM_LINKS as string)
 
   const links: links[] | null = customLinks ? JSON.parse(customLinks as string) : null
 

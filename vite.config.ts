@@ -3,6 +3,7 @@ import { execSync } from "child_process"
 import fs from "fs"
 import path from "path"
 import { defineConfig, loadEnv } from "vite"
+import vercel from "vite-plugin-vercel"
 
 // Get git commit hash
 const getGitHash = () => {
@@ -29,7 +30,22 @@ export default defineConfig(({ mode }) => {
     define: {
       "import.meta.env.VITE_GIT_HASH": JSON.stringify(getGitHash()),
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      vercel({
+        // Configure proxy for both Vercel and Cloudflare
+        rewrites: [
+          {
+            source: "/api/v1/ws/server",
+            destination: env.VITE_PROXY_WS_TARGET || "ws://127.0.0.1:8008",
+          },
+          {
+            source: "/api/v1/:path*",
+            destination: `${env.VITE_PROXY_HTTP_TARGET || "http://127.0.0.1:8008"}/api/v1/:path*`,
+          },
+        ],
+      }),
+    ],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

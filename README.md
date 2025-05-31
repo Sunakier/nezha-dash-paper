@@ -77,3 +77,21 @@ VITE_CUSTOM_ILLUSTRATION="/custom-illustration.png"
 #### 3. 预定义字符串（最低优先级）
 
 如果没有设置动态注入的全局变量和环境变量，将使用预定义的默认值。
+
+## 部署指南
+
+### Vercel 部署
+
+项目已配置为支持 Vercel 部署，并使用 vite-plugin-vercel 插件优化反向代理。部署到 Vercel 时，请确保设置以下环境变量：
+
+- `VITE_PROXY_WS_TARGET`: WebSocket 代理目标地址
+- `VITE_PROXY_HTTP_TARGET`: HTTP 代理目标地址
+
+### Cloudflare Pages 部署
+
+项目也支持部署到 Cloudflare Pages。部署时，请在 Cloudflare Pages 的环境变量设置中添加以下变量：
+
+- `VITE_PROXY_WS_TARGET`: WebSocket 代理目标地址
+- `VITE_PROXY_HTTP_TARGET`: HTTP 代理目标地址
+
+注意：在 Cloudflare Pages 中，您可能需要根据您的 API 端点位置调整 `public/_redirects` 文件中的重定向规则。

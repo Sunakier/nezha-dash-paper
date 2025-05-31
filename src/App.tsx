@@ -63,7 +63,8 @@ const App: React.FC = () => {
     i18n.changeLanguage(settingData?.data?.config?.language)
   }
 
-  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : undefined
+  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : 
+    (import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE !== "" ? import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE : undefined)
 
   return (
     <Router basename={import.meta.env.BASE_URL}>

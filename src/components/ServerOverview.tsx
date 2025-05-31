@@ -23,7 +23,7 @@ export default function ServerOverview({ online, offline, total, up, down, upSpe
   const disableAnimatedMan = window.DisableAnimatedMan as boolean
 
   // @ts-expect-error CustomIllustration is a global variable
-  const customIllustration = window.CustomIllustration || "/animated-man.webp"
+  const customIllustration = window.CustomIllustration || import.meta.env.VITE_CUSTOM_ILLUSTRATION || "/animated-man.webp"
 
   const customBackgroundImage = (window.CustomBackgroundImage as string) !== "" ? window.CustomBackgroundImage : undefined
 

@@ -37,12 +37,13 @@ function Header() {
   const siteName = settingData?.data?.config?.site_name
 
   // @ts-expect-error CustomLogo is a global variable
-  const customLogo = window.CustomLogo || "/apple-touch-icon.png"
+  const customLogo = window.CustomLogo || import.meta.env.VITE_CUSTOM_LOGO || "/apple-touch-icon.png"
 
   // @ts-expect-error CustomDesc is a global variable
-  const customDesc = window.CustomDesc || t("nezha")
+  const customDesc = window.CustomDesc || import.meta.env.VITE_CUSTOM_DESC || t("nezha")
 
-  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : undefined
+  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : 
+    (import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE !== "" ? import.meta.env.VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE : undefined)
 
   useEffect(() => {
     const link = document.querySelector("link[rel*='icon']") || document.createElement("link")
@@ -56,13 +57,16 @@ function Header() {
   }, [customLogo])
 
   useEffect(() => {
-    document.title = siteName || "哪吒监控 Nezha Monitoring"
+    document.title = siteName || "Nezha Monitoring"
   }, [siteName])
 
   const handleBackgroundToggle = () => {
-    if (window.CustomBackgroundImage) {
+    // Get the current background image with priority: window.CustomBackgroundImage > environment variable
+    const currentBackgroundImage = window.CustomBackgroundImage || import.meta.env.VITE_CUSTOM_BACKGROUND_IMAGE
+
+    if (currentBackgroundImage) {
       // Store the current background image before removing it
-      sessionStorage.setItem("savedBackgroundImage", window.CustomBackgroundImage)
+      sessionStorage.setItem("savedBackgroundImage", currentBackgroundImage)
       updateBackground(undefined)
     } else {
       // Restore the saved background image
@@ -151,9 +155,9 @@ type links = {
 
 function Links() {
   // @ts-expect-error CustomLinks is a global variable
-  const customLinks = window.CustomLinks as string
+  const customLinks = window.CustomLinks || import.meta.env.VITE_CUSTOM_LINKS as string
 
-  const links: links[] | null = customLinks ? JSON.parse(customLinks) : null
+  const links: links[] | null = customLinks ? JSON.parse(customLinks as string) : null
 
   if (!links) return null
 

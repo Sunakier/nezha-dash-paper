@@ -19,13 +19,16 @@ export function useBackground() {
   useEffect(() => {
     // 监听背景变化
     const handleBackgroundChange = () => {
-      setBackgroundImage(window.CustomBackgroundImage || undefined)
+      setBackgroundImage(window.CustomBackgroundImage || import.meta.env.VITE_CUSTOM_BACKGROUND_IMAGE || undefined)
     }
 
     // 初始化检查
     const checkInitialBackground = () => {
       if (window.CustomBackgroundImage) {
         setBackgroundImage(window.CustomBackgroundImage)
+      } else if (import.meta.env.VITE_CUSTOM_BACKGROUND_IMAGE) {
+        window.CustomBackgroundImage = import.meta.env.VITE_CUSTOM_BACKGROUND_IMAGE
+        setBackgroundImage(import.meta.env.VITE_CUSTOM_BACKGROUND_IMAGE)
       } else {
         const savedImage = sessionStorage.getItem("savedBackgroundImage")
         if (savedImage) {

@@ -11,6 +11,7 @@ import { SortProvider } from "./context/sort-provider"
 import { StatusProvider } from "./context/status-provider"
 import { TooltipProvider } from "./context/tooltip-provider"
 import { WebSocketProvider } from "./context/websocket-provider"
+import { getWsApiBaseUrl } from "./lib/api-utils"
 import "./i18n"
 import "./index.css"
 
@@ -21,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ThemeProvider storageKey="vite-ui-theme">
       <ThemeColorManager />
       <QueryClientProvider client={queryClient}>
-        <WebSocketProvider url="/api/v1/ws/server">
+        <WebSocketProvider url={getWsApiBaseUrl() + "/api/v1/ws/server"}>
           <StatusProvider>
             <SortProvider>
               <TooltipProvider>

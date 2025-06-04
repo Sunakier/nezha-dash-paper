@@ -61,18 +61,50 @@ VITE_CUSTOM_ILLUSTRATION="/custom-illustration.png"
 
 **可用的环境变量：**
 
-| 环境变量                            | 说明                    | 默认值                  |
-| ----------------------------------- | ----------------------- | ----------------------- |
-| VITE_CUSTOM_DESC                    | 自定义描述文本          | 翻译键 "nezha"          |
-| VITE_CUSTOM_LOGO                    | 自定义 Logo 地址        | "/apple-touch-icon.png" |
-| VITE_CUSTOM_LINKS                   | 自定义链接（JSON 格式） | 无                      |
-| VITE_CUSTOM_BACKGROUND_IMAGE        | 自定义背景图片          | 无                      |
-| VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE | 自定义移动端背景图片    | 无                      |
-| VITE_CUSTOM_ILLUSTRATION            | 自定义插图              | "/animated-man.webp"    |
-| VITE_PROXY_WS_TARGET                | WebSocket 代理目标地址  | "ws://127.0.0.1:8008"   |
-| VITE_PROXY_HTTP_TARGET              | HTTP 代理目标地址       | "http://127.0.0.1:8008" |
+| 环境变量                            | 说明                                | 默认值                  |
+| ----------------------------------- | ----------------------------------- | ----------------------- |
+| VITE_CUSTOM_DESC                    | 自定义描述文本                      | 翻译键 "nezha"          |
+| VITE_CUSTOM_LOGO                    | 自定义 Logo 地址                    | "/apple-touch-icon.png" |
+| VITE_CUSTOM_LINKS                   | 自定义链接（JSON 格式）             | 无                      |
+| VITE_CUSTOM_BACKGROUND_IMAGE        | 自定义背景图片                      | 无                      |
+| VITE_CUSTOM_MOBILE_BACKGROUND_IMAGE | 自定义移动端背景图片                | 无                      |
+| VITE_CUSTOM_ILLUSTRATION            | 自定义插图                          | "/animated-man.webp"    |
+| VITE_PROXY_WS_TARGET                | WebSocket 代理目标地址              | "ws://127.0.0.1:8008"   |
+| VITE_PROXY_HTTP_TARGET              | HTTP 代理目标地址                   | "http://127.0.0.1:8008" |
+| VITE_DIRECT_API_ACCESS              | 启用直接 API 访问（不使用代理）     | false                   |
+| VITE_API_HTTP_BASE                  | HTTP API 基础 URL（直接访问时使用） | "http://127.0.0.1:8008" |
+| VITE_API_WS_BASE                    | WebSocket API 基础 URL（直接访问时使用） | "ws://127.0.0.1:8008" |
 
 请参考项目根目录下的 `.env.example` 文件获取更多信息和示例。
+
+### API 访问模式配置
+
+nezha-dash-paper 支持两种 API 访问模式：
+
+1. **代理模式**（默认）：前端通过服务器的反向代理访问 API。这种模式适用于大多数部署场景，特别是当 API 服务器与前端不在同一域名下时。
+
+2. **直接访问模式**：前端直接访问 API 服务器，不经过代理。这种模式适用于 API 服务器支持跨域请求或与前端在同一域名下的场景。
+
+**如何配置 API 访问模式：**
+
+1. **代理模式**（默认）：
+   - 设置 `VITE_DIRECT_API_ACCESS=false`（或不设置，默认为 false）
+   - 配置 `VITE_PROXY_WS_TARGET` 和 `VITE_PROXY_HTTP_TARGET` 指向 API 服务器
+
+2. **直接访问模式**：
+   - 设置 `VITE_DIRECT_API_ACCESS=true`
+   - 配置 `VITE_API_WS_BASE` 和 `VITE_API_HTTP_BASE` 指向 API 服务器
+
+**示例配置（直接访问模式）：**
+
+```
+# 启用直接 API 访问
+VITE_DIRECT_API_ACCESS=true
+# HTTP API 基础 URL
+VITE_API_HTTP_BASE="http://api.example.com:8008"
+# WebSocket API 基础 URL
+VITE_API_WS_BASE="ws://api.example.com:8008"
+```
 
 #### 3. 预定义字符串（最低优先级）
 
